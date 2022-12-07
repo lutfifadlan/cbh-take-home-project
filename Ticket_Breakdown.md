@@ -18,20 +18,38 @@ You will be graded on the level of detail in each ticket, the clarity of the exe
 ## Your Breakdown Here
 
 ### Assumptions:
-- ERD:
+- **ERD**:
 ![Screenshot 2022-12-08 at 01 35 38](https://user-images.githubusercontent.com/7077041/206267139-6af62101-acc0-4ba0-ab52-734481babe40.png)
-- Sequence Diagram:
+- **Sequence Diagram**:
 ![Screenshot 2022-12-08 at 01 49 51](https://user-images.githubusercontent.com/7077041/206269756-78918645-2f67-482a-8600-b186e04a1813.png)
-- Database is relational
+- Database is non-relational
+- `Agent` table columns:
+  - id
+  - custom_id
+  - created_at
+  - updated_at
+- `Facility` table columns:
+  - id
+  - name
+  - created_at
+  - updated_at
+- `Shifts` table columns:
+  - id
+  - shift_date
+  - agent_id
+  - agent_custom_id
+  - agent_name
+  - working_hours
+  - created_at
+  - updated_at
 - Agent custom id's is an required input when creating shift and generating reports
 - 1 Shift can have more than one Agent with a either same or different number of hours
-- The communication protocol between to book agent, post shifts, and generate report is using REST API
-  - POST /facilities/shifts
-    - Body Request:
+- The communication protocol between to book agent, post shifts, and generate report is using REST API. And here are some of the existing endpoints:
+  - `POST /facilities/shifts` (Post Shift for Clients)
+    - Body Request Example:
       ```
       { 
-        facility_id: "123455",
-        date: "2022-12-12T17:00:00.000Z"
+        shift_date: "2022-12-12T17:00:00.000Z"
         shifts: [
           {
             agent_id: "ac231ec5-ed4e-4822-8828-cdc390e45beb",
@@ -46,64 +64,71 @@ You will be graded on the level of detail in each ticket, the clarity of the exe
         }
       }
       ```
-  - POST /facilities/agent-book
-    - Body Request:
+  - `POST /facilities/agent-book` (Client Book Agent)
+    - Body Request Example:
       ```
       {
         shift_id: "12345",
         agent_id: "ac231ec5-ed4e-4822-8828-cdc390e45beb"
       }
       ```
-  - GET /shifts?facility_id={facility_id}
-  - POST /reports
-    - Body Request:
+  - `GET /shifts?facility_id={facility_id}`
+  - `POST /reports`
+    - Body Request Example:
       ```
+      {
         shifts_ids: ["2a941f49-3384-406a-a121-e2f538ea6aec", "d6a68b56-138b-4888-a0ea-18b9590e4a34"]
+      }
       ```
+  - There is `getShiftById` function available to get shift by shift id
 
 1. **User Story: As a Facility, I want to be able to save custom id for each Agent**
   a. Acceptance Criteria
     - A new field called `custom_id` should be added as a new column in Agent table
-    - Facility has the ability to use the custom id for agents when the client book them
+    - Facility has the ability to use custom id for agents when the client book them
     - We should be able to get the agent's custom id when querying the Agent table
+    - We should be able to get agent's custom id fetching shifts
   b. Time / Effort Estimates
-    - 3 days
-      - 1 day to update table, request and response of API, request validator
+    - 3 days (3 story points) with breakdown:
+      - 1 day to update table, request and response of API, and request validator
       - 1 day to update unit test and integration tests
       - 1 day to deploy to dev environment, QA, and release to production
   c. Implementation Details
     - Add a new `custom_id` column in Agent table
-    - Update `getShiftsByFacilityId`(equivalent of `getShiftsByFacility`) function to include `agent_custom_id` as the returned value (if needed)
+    - Update `getShiftsByFacilityId`(equivalent of `getShiftsByFacility`) function to include `agent_custom_id` as the returned value
     - Update `createShift` function to include `agent_custom_id` in the input parameter and also the returned value
     - Update the request validator for creating shift API to also validate `agent_custom_id`
     - Update the return response of Agent API to include `custom_id`
     - Update unit tests for functions that are related to Agent to include `agent_custom_id` field
-      - `getShiftsByFacilityId` 
+      - `getShiftsByFacilityId`
       - `createShift`
-    - Update integration tests for APIs that have additional request & response for `custom_id` or `agent_custom_id`
+    - Update integration tests for APIs that have additional request & response for
+      - `custom_id` for Agent APIs case
+      - `agent_custom_id` for Shift and Facility APIs case
 
-1. **User Story: As a Facility, I want to be able to generate report which have the custom ids that have been set for each Agent**
+
+2. **User Story: As a Facility, I want to be able to generate report which have the custom ids that have been set for each Agent**
   a. Acceptance Criteria
     - Facility has the ability to generate report with the list of `shift_id`'
     - The generated report should have `agent_custom_id` value which indicates the custom id for the Agent that has worked in Shifts
     - If one of inputted `shift_id` not exists in the Shift table, it should return shift with the `shift_id` doesn't exists error message
   b. Time / Effort Estimates
-    - 5 days
+    - 5 days (5 story points)
       - 2 days to create generate report function
       - 1 day to
-        - create generate report API
+        - create generate report API endpoint
         - create unit tests for generate report function
-      - 1 day to create integration tests for generate API and deploy to dev environment
+      - 1 day to create integration tests for generate report API and deploy to dev environment
       - 1 day to QA and release to production
   c. Implementation Details
-    - Create generate report function which is doing the following:
+    - Create generate report function which will do the following:
       - Receive list of shift ids as an input parameter
-      - Iterate the list of shift ids and get shifts based on those
+      - Iterate the list of shift ids and get shifts by calling `getShiftsById` function based on those
         - If the shift doesn't exists, throw error
-      - Once you get all of the shifts, create a data structure which contains
-        - Agent name
-        - Agent custom id
-        - Sum of working hours for each Agent in every Shifts
+      - Once you get all of the shifts, create a data structure which contains list of agents that worked on Shift and have following:
+        - Agent's name
+        - Agent's custom id
+        - Agent's sum of working hours in every Shifts
       - Generate PDF with the structured data
     - Create generate report API which body parameter is the list of shift ids
     - Create unit tests for generate report function
