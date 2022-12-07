@@ -17,7 +17,11 @@ You will be graded on the level of detail in each ticket, the clarity of the exe
 
 ## Your Breakdown Here
 
-Assumptions:
+### Assumptions:
+- ERD:
+![Screenshot 2022-12-08 at 01 35 38](https://user-images.githubusercontent.com/7077041/206267139-6af62101-acc0-4ba0-ab52-734481babe40.png)
+- Sequence Diagram:
+![Screenshot 2022-12-08 at 01 49 51](https://user-images.githubusercontent.com/7077041/206269756-78918645-2f67-482a-8600-b186e04a1813.png)
 - Database is relational
 - Agent custom id's is an required input when creating shift and generating reports
 - 1 Shift can have more than one Agent with a either same or different number of hours
