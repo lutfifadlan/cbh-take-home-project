@@ -11,12 +11,13 @@ You will be graded on the exhaustiveness and quality of your unit tests, the dep
 ## Your Explanation Here
 
 ### Explanation of why I made the choices
-- ```
-const crypto = require("crypto");
+- 
+  ```
+  const crypto = require("crypto");
 
-const TRIVIAL_PARTITION_KEY = "0";
-const MAX_PARTITION_KEY_LENGTH = 256;
-```
+  const TRIVIAL_PARTITION_KEY = "0";
+  const MAX_PARTITION_KEY_LENGTH = 256;
+  ```
   Usually constant variables written at the very top so that we can easily see the what's the value of that while we code in the file and need to use that variable
 - Remove ```data = JSON.stringify(event)``` to save variable (save memory)
 - Use ternary operator to save some lines and make it more readable
